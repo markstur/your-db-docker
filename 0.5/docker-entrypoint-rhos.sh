@@ -19,7 +19,7 @@
 # limitations under the License.
 
 JANUS_PROPS="${JANUS_CONFIG_DIR}/janusgraph.properties"
-GREMLIN_YAML="${JANUS_CONFIG_DIR}/gremlin-server.yaml"
+GREMLIN_YAML="${JANUS_CONFIG_DIR}/gremlin-server-rhos.yaml"
 
 # running as root; step down to run as janusgraph user
 # if [ "$1" == 'janusgraph' ] && [ "$(id -u)" == "0" ]; then
@@ -35,7 +35,7 @@ if [ 'true' == 'true' ]; then
   # setup config directory
   mkdir -p ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
   cp conf/gremlin-server/janusgraph-${JANUS_PROPS_TEMPLATE}-server.properties ${JANUS_CONFIG_DIR}/janusgraph.properties
-  cp conf/gremlin-server/gremlin-server.yaml ${JANUS_CONFIG_DIR}
+  cp conf/gremlin-server/gremlin-server-rhos.yaml ${JANUS_CONFIG_DIR}
   chgrp -R 0 ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
   chmod g+rwx ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
   chmod -R g+rwx ${JANUS_CONFIG_DIR}/*
@@ -83,7 +83,7 @@ if [ 'true' == 'true' ]; then
 
     /usr/local/bin/load-initdb.sh &
 
-    exec ${JANUS_HOME}/bin/gremlin-server.sh ${JANUS_CONFIG_DIR}/gremlin-server.yaml
+    exec ${JANUS_HOME}/bin/gremlin-server.sh ${JANUS_CONFIG_DIR}/gremlin-server-rhos.yaml
   fi
 fi
 
