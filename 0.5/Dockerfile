@@ -59,10 +59,13 @@ ENV JANUS_VERSION=${JANUS_VERSION} \
     JANUS_INITDB_DIR=/docker-entrypoint-initdb.d \
     gremlinserver.graphs.graph=/etc/opt/janusgraph/janusgraph.properties \
     gremlinserver.threadPoolWorker=1 \
-    gremlinserver.gremlinPool=8
+    gremlinserver.gremlinPool=8 \
+    gremlinserver.host=8.0.0.0 \
+    gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.WsAndHttpChannelizer
 
 COPY --chown=:0 --from=builder /opt/janusgraph/ /opt/janusgraph/
 COPY --chown=:0 --from=builder /opt/yq /usr/bin/yq
+COPY --chown=:0 docker-entrypoint.sh /usr/local/bin/
 COPY --chown=:0 docker-entrypoint-rhos.sh /usr/local/bin/
 COPY --chown=:0 load-initdb.sh /usr/local/bin/
 
@@ -70,8 +73,8 @@ RUN chmod 755 /usr/local/bin/docker-entrypoint-rhos.sh && \
     chmod 755 /usr/local/bin/load-initdb.sh && \
     chmod 755 /usr/bin/yq && \
     mkdir -p ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
-    chgrp 0 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
-    chmod 775 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
+    chgrp -R 0 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
+    chmod -R 777 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
     chgrp -R 0 ${JANUS_HOME}
 
 EXPOSE 8182
@@ -79,7 +82,6 @@ EXPOSE 8182
 WORKDIR ${JANUS_HOME}
 USER janusgraph
 
-# Just don't run as root or janusgraph (for openshift)
 ENTRYPOINT [ "docker-entrypoint-rhos.sh" ]
 CMD [ "janusgraph" ]
 

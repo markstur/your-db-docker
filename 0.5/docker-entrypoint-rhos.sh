@@ -18,6 +18,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+echo "Modified entrypoint for OpenShift"
+
 JANUS_PROPS="${JANUS_CONFIG_DIR}/janusgraph.properties"
 GREMLIN_YAML="${JANUS_CONFIG_DIR}/gremlin-server-rhos.yaml"
 
