@@ -61,29 +61,26 @@ ENV JANUS_VERSION=${JANUS_VERSION} \
     gremlinserver.threadPoolWorker=1 \
     gremlinserver.gremlinPool=8
 
-RUN groupadd -r janusgraph --gid=999 && \
-    useradd -r -g janusgraph --uid=999 -d ${JANUS_DATA_DIR} janusgraph && \
-    apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends krb5-user && \
-    rm -rf /var/lib/apt/lists/*
+COPY --chown=:0 --from=builder /opt/janusgraph/ /opt/janusgraph/
+COPY --chown=:0 --from=builder /opt/yq /usr/bin/yq
+COPY --chown=:0 docker-entrypoint-rhos.sh /usr/local/bin/
+COPY --chown=:0 load-initdb.sh /usr/local/bin/
 
-COPY --from=builder /opt/janusgraph/ /opt/janusgraph/
-COPY --from=builder /opt/yq /usr/bin/yq
-COPY docker-entrypoint.sh /usr/local/bin/
-COPY load-initdb.sh /usr/local/bin/
-
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh && \
+RUN chmod 755 /usr/local/bin/docker-entrypoint-rhos.sh && \
     chmod 755 /usr/local/bin/load-initdb.sh && \
     chmod 755 /usr/bin/yq && \
     mkdir -p ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
-    chown -R janusgraph:janusgraph ${JANUS_HOME} ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR}
+    chgrp 0 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
+    chmod 775 ${JANUS_INITDB_DIR} ${JANUS_CONFIG_DIR} ${JANUS_DATA_DIR} && \
+    chgrp -R 0 ${JANUS_HOME}
 
 EXPOSE 8182
 
 WORKDIR ${JANUS_HOME}
 USER janusgraph
 
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+# Just don't run as root or janusgraph (for openshift)
+ENTRYPOINT [ "docker-entrypoint-rhos.sh" ]
 CMD [ "janusgraph" ]
 
 LABEL org.opencontainers.image.title="JanusGraph Docker Image" \

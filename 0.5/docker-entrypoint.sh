@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # NOTE: THIS FILE IS GENERATED VIA "update.sh"
 # DO NOT EDIT IT DIRECTLY; CHANGES WILL BE OVERWRITTEN.
@@ -19,26 +19,26 @@
 # limitations under the License.
 
 JANUS_PROPS="${JANUS_CONFIG_DIR}/janusgraph.properties"
-GREMLIN_YAML="${JANUS_CONFIG_DIR}/gremlin-server.yaml"
+GREMLIN_YAML="${JANUS_CONFIG_DIR}/gremlin-server-rhos.yaml"
 
 # running as root; step down to run as janusgraph user
-if [ "$1" == 'janusgraph' ] && [ "$(id -u)" == "0" ]; then
-  mkdir -p ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
-  chown -R janusgraph:janusgraph ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
-  chmod 700 ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
+# if [ "$1" == 'janusgraph' ] && [ "$(id -u)" == "0" ]; then
+  # mkdir -p ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
+  # chown -R janusgraph:janusgraph ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
+  # chmod 700 ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
 
-  exec chroot --skip-chdir --userspec janusgraph:janusgraph / "${BASH_SOURCE}" "$@"
-fi
+  # exec chroot --skip-chdir --userspec janusgraph:janusgraph / "${BASH_SOURCE}" "$@"
+# fi
 
 # running as non root user
-if [ "$1" == 'janusgraph' ]; then
+if [ 'true' == 'true' ]; then
   # setup config directory
   mkdir -p ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
   cp conf/gremlin-server/janusgraph-${JANUS_PROPS_TEMPLATE}-server.properties ${JANUS_CONFIG_DIR}/janusgraph.properties
-  cp conf/gremlin-server/gremlin-server.yaml ${JANUS_CONFIG_DIR}
-  chown -R "$(id -u):$(id -g)" ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
-  chmod 700 ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
-  chmod -R 600 ${JANUS_CONFIG_DIR}/*
+  cp conf/gremlin-server/gremlin-server-rhos.yaml ${JANUS_CONFIG_DIR}
+  chgrp -R 0 ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
+  chmod g+rwx ${JANUS_DATA_DIR} ${JANUS_CONFIG_DIR}
+  chmod -R g+rwx ${JANUS_CONFIG_DIR}/*
 
   # apply configuration from environment
   while IFS='=' read -r envvar_key envvar_val; do
@@ -83,7 +83,7 @@ if [ "$1" == 'janusgraph' ]; then
 
     /usr/local/bin/load-initdb.sh &
 
-    exec ${JANUS_HOME}/bin/gremlin-server.sh ${JANUS_CONFIG_DIR}/gremlin-server.yaml
+    exec ${JANUS_HOME}/bin/gremlin-server.sh ${JANUS_CONFIG_DIR}/gremlin-server-rhos.yaml
   fi
 fi
 
