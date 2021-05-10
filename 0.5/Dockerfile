@@ -60,7 +60,7 @@ ENV JANUS_VERSION=${JANUS_VERSION} \
     gremlinserver.graphs.graph=/etc/opt/janusgraph/janusgraph.properties \
     gremlinserver.threadPoolWorker=1 \
     gremlinserver.gremlinPool=8 \
-    gremlinserver.host=8.0.0.0 \
+    gremlinserver.host=0.0.0.0 \
     gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.WsAndHttpChannelizer
 
 COPY --chown=:0 --from=builder /opt/janusgraph/ /opt/janusgraph/
