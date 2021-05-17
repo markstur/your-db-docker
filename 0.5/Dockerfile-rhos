@@ -45,6 +45,8 @@ COPY scripts/remote-connect.groovy ${JANUS_HOME}/scripts/
 
 FROM registry.access.redhat.com/ubi8/openjdk-11:1.3-15
 
+USER root
+
 ARG CREATED=test
 ARG REVISION=test
 ARG JANUS_VERSION=0.5.3
